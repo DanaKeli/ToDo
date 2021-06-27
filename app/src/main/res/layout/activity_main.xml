@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="146dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="74dp"
+        android:text="@string/title"
+        android:textSize="32sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="6dp"
+        android:text="@string/done"
+        android:textColor="@color/gray_light"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+    <ImageView
+        android:id="@+id/ivDoneVisibility"
+        android:layout_width="23dp"
+        android:layout_height="23dp"
+        android:layout_marginTop="124dp"
+        android:layout_marginEnd="24dp"
+        android:onClick="onClickDoneVisibility"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_baseline_remove_red_eye_24"
+        app:tint="@color/gray_light" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvNotes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvDone"
+        tools:listitem="@layout/item_note_info" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/ButtonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="40dp"
+        android:clickable="true"
+        android:onClick="onClickAdd"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_baseline_add_24" />
+</androidx.constraintlayout.widget.ConstraintLayout>

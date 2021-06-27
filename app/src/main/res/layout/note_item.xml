@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageViewCloseCreate"
+        android:layout_width="22dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="51dp"
+        android:contentDescription="@string/closeNote"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_baseline_close_24" />
+
+    <TextView
+        android:id="@+id/textViewSave"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_marginTop="49dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/save"
+        android:textColor="@color/blue"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxHeight="250dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/white"
+        android:ems="10"
+        android:gravity="top"
+        android:minHeight="104dp"
+        android:hint="@string/whatToDo"
+        android:inputType="textMultiLine"
+        android:scrollHorizontally="false"
+        android:scrollbars="vertical"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
+        android:textSize="16sp"
+        android:textColorHint="@color/gray_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSave" />
+
+    <TextView
+        android:id="@+id/textViewPriorityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="19dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="28dp"
+        android:text="@string/priority_label"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextDescription" />
+
+    <TextView
+        android:id="@+id/textViewPriority"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/priority"
+        android:textColor="@color/gray_light"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPriorityLabel" />
+
+    <View
+        android:id="@+id/viewLine1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/gray_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPriority" />
+
+    <TextView
+        android:id="@+id/textViewDoBefore"
+        android:layout_width="wrap_content"
+        android:layout_height="19dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/doBefore"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewLine1" />
+
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/blue"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDoBefore" />
+
+    <Switch
+        android:id="@+id/switchDoBefore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewLine1"
+        tools:ignore="UseSwitchCompatOrMaterialXml"
+
+        android:checked="false"
+        />
+
+    <View
+        android:id="@+id/viewLine2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="40dp"
+        android:background="@color/gray_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDate" />
+
+    <ImageView
+        android:id="@+id/imageViewTrashCan"
+        android:layout_width="24dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="21dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewLine2"
+        app:srcCompat="@drawable/ic_baseline_delete_24"
+        app:tint="@color/gray_light" />
+
+    <TextView
+        android:id="@+id/textViewDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="22dp"
+        android:text="@string/delete"
+        android:textColor="@color/gray_light"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/imageViewTrashCan"
+        app:layout_constraintTop_toBottomOf="@+id/viewLine2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

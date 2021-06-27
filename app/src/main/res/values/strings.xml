@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ToDo</string>
+    <string name="save">СОХРАНИТЬ</string>
+    <string name="whatToDo">Что надо сделать...</string>
+    <string name="priority_label">Важность</string>
+    <string name="priority">Нет</string>
+    <string name="doBefore">Сделать до</string>
+    <string name="delete">Удалить</string>
+    <string name="title">Мои дела</string>
+    <string name="done">Выполнено</string>
+    <string name="closeNote">Закрыть</string>
+</resources>
