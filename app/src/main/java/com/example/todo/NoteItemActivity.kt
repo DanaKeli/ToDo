@@ -7,8 +7,10 @@ import android.content.res.Resources
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.widget.DatePicker
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.example.todo.databinding.NoteItemBinding
@@ -34,6 +36,17 @@ public class NoteItemActivity : AppCompatActivity() {
         binding = NoteItemBinding.inflate(layoutInflater)
         setContentView(binding.root)
         intent
+        if (intent.hasExtra("note")) {
+            val note = intent.getParcelableExtra("note") as? Note
+            if (note != null) {
+                binding.editTextDescription.setText(note.description, TextView.BufferType.EDITABLE)
+                binding.textViewPriority.text = note.priority
+                binding.textViewDate.text = note.date
+                if (note.date != null) {
+                    binding.switchDoBefore.isChecked
+                }
+            }
+        }
 
         binding.textViewPriority.setOnClickListener {
             showAlert(it);
@@ -46,7 +59,7 @@ public class NoteItemActivity : AppCompatActivity() {
             startActivity(intent)
         }
         binding.textViewSave.setOnClickListener {
-           save(it)
+            save(it)
         }
 
         binding.textViewDelete.setOnClickListener {
@@ -56,10 +69,6 @@ public class NoteItemActivity : AppCompatActivity() {
         binding.switchDoBefore.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) calendar() else switchOff()
         }
-    }
-
-    private fun switchOn() {
-       calendar()
     }
 
     private fun switchOff() {
@@ -72,12 +81,12 @@ public class NoteItemActivity : AppCompatActivity() {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val view: DatePicker
-        val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { view, year, month, day ->
-            binding.textViewDate.text = "$day.${month+1}.$year"}, year, month, day)
+        val dpd =
+            DatePickerDialog(this, DatePickerDialog.OnDateSetListener { view, year, month, day ->
+                binding.textViewDate.text = "$day.${month + 1}.$year"
+            }, year, month, day)
         dpd.show()
-
     }
-
 
     private fun save(view: View) {
         description = binding.editTextDescription.text.toString().trim()
@@ -85,9 +94,10 @@ public class NoteItemActivity : AppCompatActivity() {
         date = binding.textViewDate.text.toString()
         binding.textViewDelete.setTextColor(binding.root.resources.getColor(R.color.red))
         binding.imageViewTrashCan.setColorFilter(
-            (applicationContext.resources.getColor(R.color.red)), PorterDuff.Mode.SRC_IN)
+            (applicationContext.resources.getColor(R.color.red)), PorterDuff.Mode.SRC_IN
+        )
         note = Note(description, date, priority, isDone)
-   //     TODO("add new note to bd")
+        //     TODO("add new note to bd")
     }
 
     private fun delete(view: View) {
@@ -96,7 +106,8 @@ public class NoteItemActivity : AppCompatActivity() {
         binding.textViewDate.text = ""
         binding.textViewDelete.setTextColor(binding.root.resources.getColor(R.color.gray_light))
         binding.imageViewTrashCan.setColorFilter(
-            (applicationContext.resources.getColor(R.color.gray_light)), PorterDuff.Mode.SRC_IN)
+            (applicationContext.resources.getColor(R.color.gray_light)), PorterDuff.Mode.SRC_IN
+        )
         binding.textViewPriority.setTextColor(view.resources.getColor(R.color.gray_light))
         //TODO("delete note from bd")
     }

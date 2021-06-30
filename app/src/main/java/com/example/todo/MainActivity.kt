@@ -4,10 +4,12 @@ import android.content.Intent
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.todo.databinding.ActivityMainBinding
+import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        noteList.add(Note("Some to do", "02.05.2021", "high", false))
+        noteList.add(Note("Some to do", "03.02.2021", "high", false))
         noteList.add(Note("Some to do", "", "no", false))
         noteList.add(Note("Some to do", "02.01.2021", "low", true))
         noteList.add(Note("Some to do", "02.06.2021", "low", false))
@@ -44,9 +46,7 @@ class MainActivity : AppCompatActivity() {
         val obj = object : NotesAdapter.OnNoteClickListener {
             override fun onNoteClick(position: Int) {
                 val intent = Intent(applicationContext, NoteItemActivity::class.java)
-                intent.putExtra("description", noteList[position].description)
-                intent.putExtra("date", noteList[position].date)
-                intent.putExtra("priority", noteList[position].priority)
+                intent.putExtra("note", noteList[position] as Parcelable)
                 startActivity(intent)
             }
         }

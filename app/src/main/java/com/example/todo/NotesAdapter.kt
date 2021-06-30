@@ -54,18 +54,12 @@ class NotesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
             if (note.isDone) {
                 binding.imageViewCheckBox.setImageDrawable(
-                    ContextCompat.getDrawable(itemView.context, R.drawable.ic_checked))
+                    ContextCompat.getDrawable(itemView.context, R.drawable.ic_checked)
+                )
                 strike(note)
-            } else when (note.priority)
-                 {
-                    "high" -> binding.textViewDescriptionMain.setText(
-                        exclamation(note), TextView.BufferType.SPANNABLE)
-                    "low" -> binding.textViewDescriptionMain.setText(
-                        arrow(note), TextView.BufferType.SPANNABLE)
-                    else -> plain(note)
-                }
-            if (isDeadlineOff(note)) {
-                binding.imageViewCheckBox.setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.unchecked_red))
+            } else {
+                redOrPlain(note)
+                viewOfPriority(note)
             }
 
             binding.textViewDateItem.text = note.date
@@ -80,18 +74,9 @@ class NotesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             binding.imageViewCheckBox.setOnClickListener {
                 onCheckBoxClickListener?.onCheckBoxClick(adapterPosition)
                 if (note.isDone) {
-                    binding.imageViewCheckBox.setImageDrawable(
-                        ContextCompat.getDrawable(itemView.context, R.drawable.unchecked)
-                    )
+                    redOrPlain(note)
                     note.isDone = false
-                    when (note.priority)
-                    {
-                        "high" -> binding.textViewDescriptionMain.setText(
-                            exclamation(note), TextView.BufferType.SPANNABLE)
-                        "low" -> binding.textViewDescriptionMain.setText(
-                            arrow(note), TextView.BufferType.SPANNABLE)
-                        else -> plain(note)
-                    }
+                    viewOfPriority(note)
                     binding.textViewDescriptionMain.paintFlags = 0
                     binding.textViewDescriptionMain.setTextColor(Color.GRAY)
                 } else {
@@ -104,23 +89,49 @@ class NotesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
         }
 
+        private fun viewOfPriority(note: Note) {
+            when (note.priority) {
+                "high" -> binding.textViewDescriptionMain.setText(
+                    exclamation(note), TextView.BufferType.SPANNABLE
+                )
+                "low" -> binding.textViewDescriptionMain.setText(
+                    arrow(note), TextView.BufferType.SPANNABLE
+                )
+                else -> plain(note)
+            }
+        }
+
+        private fun redOrPlain(note: Note) {
+            if (isDeadlineOff(note)) {
+                binding.imageViewCheckBox.setImageDrawable(
+                    ContextCompat.getDrawable(itemView.context, R.drawable.unchecked_red)
+                )
+            } else {
+                binding.imageViewCheckBox.setImageDrawable(
+                    ContextCompat.getDrawable(itemView.context, R.drawable.unchecked)
+                )
+            }
+        }
+
         private fun plain(note: Note) {
             binding.textViewDescriptionMain.text = note.description
             binding.textViewDescriptionMain.setTextColor(Color.GRAY)
             binding.textViewDescriptionMain.paintFlags = 0
         }
 
-       private fun strike(note: Note) {
+        private fun strike(note: Note) {
             binding.textViewDescriptionMain.text = note.description
             binding.textViewDescriptionMain.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             binding.textViewDescriptionMain.setTextColor(itemView.resources.getColor(R.color.gray_light))
         }
 
-        private fun arrow(note: Note): SpannableStringBuilder{
+        private fun arrow(note: Note): SpannableStringBuilder {
             val line = SpannableStringBuilder()
             val low = SpannableString("↓")
-            low.setSpan(ForegroundColorSpan(Color.GRAY),
-                0, low.length, 0)
+            low.setSpan(
+                ForegroundColorSpan(Color.GRAY),
+                0, low.length, 0
+            )
             line.bold { append(low) }
             line.append(" ")
             line.append(note.description)
@@ -142,18 +153,17 @@ class NotesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             return line
         }
 
-
         private fun isDeadlineOff(note: Note): Boolean {
             return try {
-                val date = SimpleDateFormat("yyyy-MM-dd").parse(note.date)
-
-                date.before(SimpleDateFormat("yyyy-MM-dd").parse(LocalDate.now().toString()))
+                val formatter = SimpleDateFormat("dd.MM.yyyy")
+                val date = formatter.parse(note.date)
+                (date.before(Date()))
             } catch (e: Exception) {
                 false
             }
-
         }
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
