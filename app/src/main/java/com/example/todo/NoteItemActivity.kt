@@ -26,7 +26,7 @@ public class NoteItemActivity : AppCompatActivity() {
     private lateinit var dialog: AlertDialog
     private var description: String = ""
     private var priority: String = "Нет"
-    private var date: String = ""
+    private var date: LocalDate? = null
     private val isDone = false
     lateinit var note: Note
 
@@ -41,7 +41,7 @@ public class NoteItemActivity : AppCompatActivity() {
             if (note != null) {
                 binding.editTextDescription.setText(note.description, TextView.BufferType.EDITABLE)
                 binding.textViewPriority.text = note.priority
-                binding.textViewDate.text = note.date
+                binding.textViewDate.text = note.date.toString()
                 if (note.date != null) {
                     binding.switchDoBefore.isChecked
                 }
@@ -86,12 +86,16 @@ public class NoteItemActivity : AppCompatActivity() {
                 binding.textViewDate.text = "$day.${month + 1}.$year"
             }, year, month, day)
         dpd.show()
+        dpd.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(
+            applicationContext.resources.getColor(R.color.blue))
+        dpd.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(
+            applicationContext.resources.getColor(R.color.blue))
     }
 
     private fun save(view: View) {
         description = binding.editTextDescription.text.toString().trim()
         priority = binding.textViewPriority.text.toString()
-        date = binding.textViewDate.text.toString()
+        date = binding.textViewDate.text as LocalDate
         binding.textViewDelete.setTextColor(binding.root.resources.getColor(R.color.red))
         binding.imageViewTrashCan.setColorFilter(
             (applicationContext.resources.getColor(R.color.red)), PorterDuff.Mode.SRC_IN

@@ -7,7 +7,7 @@ import java.time.LocalDate
 @Parcelize
 data class Note (
     var description: String? = null,
-    var date: String? = null,
+    var date: LocalDate? = null,
     var priority: String? = null,
     var isDone: Boolean = false
 ): Parcelable

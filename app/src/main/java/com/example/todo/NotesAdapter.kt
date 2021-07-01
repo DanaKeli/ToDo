@@ -62,9 +62,9 @@ class NotesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 viewOfPriority(note)
             }
 
-            binding.textViewDateItem.text = note.date
+            binding.textViewDateItem.text = note.date.toString()
             if (note.date == null) {
-                binding.textViewDateItem.isGone
+                binding.textViewDateItem.text = ""
             }
 
             binding.imageViewInfo.setOnClickListener {
@@ -155,9 +155,7 @@ class NotesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         private fun isDeadlineOff(note: Note): Boolean {
             return try {
-                val formatter = SimpleDateFormat("dd.MM.yyyy")
-                val date = formatter.parse(note.date)
-                (date.before(Date()))
+                if (note.date != null) note.date?.isBefore(LocalDate.now()) == true else false
             } catch (e: Exception) {
                 false
             }
