@@ -1,78 +1,119 @@
 package com.example.todo
 
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.Canvas
 import android.graphics.PorterDuff
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.todo.adapter.TaskAdapter
+import com.example.todo.data.api.ApiHelperImpl
+import com.example.todo.data.api.RetrofitBuilder
+import com.example.todo.data.database.DBBuilder
+import com.example.todo.data.database.DBHelperImpl
+import com.example.todo.data.database.TasksDataBase
+import com.example.todo.data.database.entity.Task
 import com.example.todo.databinding.ActivityMainBinding
+import com.example.todo.notification.Notification
+import com.example.todo.utils.Status
+import com.example.todo.utils.ViewModelFactory
+import com.example.todo.viewModels.NotDoneTasksViewModel
+import com.example.todo.viewModels.TaskViewModel
 import java.time.LocalDate
 import java.time.LocalTime
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val adapter = NotesAdapter()
-    private val noteList = arrayListOf<Note>()
+    private var adapter = TaskAdapter()
+    private var taskList = listOf<Task>()
     private var isDOneVisible = false
-    private var tasksAmount: Int? = null
+    private var tasksAmountToday: Int? = null
     lateinit var manager: NotificationManager
+    lateinit var db: TasksDataBase
+    lateinit var viewModel: TaskViewModel
+    lateinit var notDoneTasksViewModel: NotDoneTasksViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        db = DBBuilder.getInstance(this)
+        appContext = this
 
-        noteList.add(Note("Some to do", LocalDate.of(2021, 5, 5), "high", false))
-        noteList.add(Note("Some to do", null, "no", false))
-        noteList.add(Note("Some to do", LocalDate.of(2021, 7, 1), "low", false))
-        noteList.add(Note("Some to do", LocalDate.of(2021, 8, 4), "low", false))
-        noteList.add(Note("Some to do", LocalDate.of(2021, 12, 4), "no", false))
-        noteList.add(Note("Some to do", LocalDate.of(2021, 7, 1), "high", false))
-        noteList.add(Note("Some to do", LocalDate.of(2021, 1, 4), "low", false))
-        noteList.add(Note("Some to do", LocalDate.of(2021, 10, 4), "high", false))
+        setUpUI()
+        setupViewModel()
+        setupObserver()
+    }
 
+    private fun setUpUI() {
+        binding.rvTasks.layoutManager = GridLayoutManager(this,1)
+        binding.rvTasks.adapter = TaskAdapter()
+        renderList(taskList)
 
+        binding.tvDone.text = "Выполнено - ${taskList.count { it.isDone }}"
 
-        binding.rvNotes.layoutManager = LinearLayoutManager(this)
-        binding.rvNotes.adapter = adapter
-        adapter.noteInfoList =
-            ArrayList<Note>(noteList.filterNot { it.isDone }.sortedBy { note -> note.priority }
-                .sortedBy { note -> note.date })
-        binding.tvDone.text = "Выполнено - ${noteList.count { it.isDone }}"
-
-        val obj = object : NotesAdapter.OnNoteClickListener {
-            override fun onNoteClick(position: Int) {
-                val intent = Intent(applicationContext, NoteItemActivity::class.java)
-                intent.putExtra("note", noteList[position] as Parcelable)
+        val obj = object : TaskAdapter.OnTaskClickListener {
+            override fun onTaskClick(position: Int) {
+                val intent = Intent(applicationContext, TaskItemActivity::class.java)
+                intent.putExtra("note", taskList[position] as Parcelable)
                 startActivity(intent)
             }
         }
-        adapter.setOnNoteClickListener(obj)
+        adapter.setOnTaskClickListener(obj)
         leftSwipe()
         rightSwipe()
 
-        tasksAmount = noteList.filterNot { it.isDone }.count { it.date == LocalDate.now() }
-        if (tasksAmount != 0 && LocalTime.now() >= LocalTime.of(8, 0)) {
-            createNotificationChannel(
-                NOTIFICATION_ID.toString(),
-                "ToDo",
-                "На сегодня есть задачи: $tasksAmount шт. Не забудьте"
+        tasksAmountToday = taskList.filterNot { it.isDone }.count { LocalDate.parse(it.date) == LocalDate.now() }
+        if (tasksAmountToday != 0 && LocalTime.now() >= LocalTime.of(8, 0)) {
 
+        }
+    }
+
+    private fun renderList(tasks: List<Task>) {
+        adapter.taskInfoList = tasks
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun setupViewModel() {
+        viewModel = ViewModelProvider(this,
+        ViewModelFactory(
+            ApiHelperImpl(RetrofitBuilder.apiService),
+            DBHelperImpl(DBBuilder.getInstance(appContext))
+        )
+        ).get(TaskViewModel::class.java)
+    }
+
+    private fun setupObserver() {
+        if (!isDOneVisible) {
+        viewModel.getAllTasks().observe(this, {
+            when(it.status) {
+                Status.SUCCESS -> {
+                    it.data?.let { taskList -> renderList(taskList) }
+
+                }
+            }
+        })} else {
+            notDoneTasksViewModel.getAllTasks().observe(this, {
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        it.data?.let { taskList -> renderList(taskList) }
+
+                    }
+                }
+            }
             )
-            sendNotification()
         }
     }
 
@@ -85,17 +126,17 @@ class MainActivity : AppCompatActivity() {
             ): Boolean = false
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                adapter.noteInfoList.removeAt(viewHolder.adapterPosition)
+                adapter.taskInfoList[viewHolder.adapterPosition]
                 adapter.notifyDataSetChanged()
             }
-//            override fun onChildDrow(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-//                                     dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-//
-//            }
-//            )
+
+            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
         }
         val leftHelper = ItemTouchHelper(leftCallback)
-        leftHelper.attachToRecyclerView(binding.rvNotes)
+        leftHelper.attachToRecyclerView(binding.rvTasks)
     }
 
     private fun rightSwipe() {
@@ -107,45 +148,27 @@ class MainActivity : AppCompatActivity() {
             ): Boolean = false
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                adapter.noteInfoList[viewHolder.adapterPosition].isDone = true
+                adapter.taskInfoList[viewHolder.adapterPosition].isDone = true
                 adapter.notifyDataSetChanged()
             }
-//            override fun onChildDrow(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-//                                     dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-//
-//            }
-//            )
+
+            override fun onChildDraw(
+                c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
+            ) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState,
+                    isCurrentlyActive
+                )
+            }
         }
         val leftHelper = ItemTouchHelper(leftCallback)
-        leftHelper.attachToRecyclerView(binding.rvNotes)
+        leftHelper.attachToRecyclerView(binding.rvTasks)
     }
 
-    private fun createNotificationChannel(id: String, name: String, description: String) {
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(id, name, importance)
-        channel.description = description
-        channel.enableLights(true)
-        channel.lightColor = Color.BLUE
-        manager.createNotificationChannel(channel)
-    }
 
-    private fun sendNotification() {
-        val resultIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent =
-            PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("ToDo")
-            .setContentText("На сегодня есть задачи: $tasksAmount шт. Не забудьте")
-            .setSmallIcon(android.R.drawable.checkbox_on_background)
-            .setChannelId(CHANNEL_ID)
-            .setAutoCancel(false)
-            .setContentIntent(pendingIntent)
-            .build()
-        manager.notify(NOTIFICATION_ID, notification)
-    }
 
     fun onClickAdd(view: View) {
-        val intent = Intent(this, NoteItemActivity::class.java)
+        val intent = Intent(this, TaskItemActivity::class.java)
         startActivity(intent)
     }
 
@@ -155,8 +178,8 @@ class MainActivity : AppCompatActivity() {
                 applicationContext.resources.getColor(R.color.gray_light),
                 PorterDuff.Mode.SRC_IN
             )
-            adapter.noteInfoList =
-                ArrayList<Note>((noteList.filterNot { it.isDone }.sortedBy { note -> note.priority }
+            adapter.taskInfoList =
+                ArrayList<Task>((taskList.filterNot { it.isDone }.sortedBy { note -> note.priority }
                     .sortedBy { note -> note.date }))
             isDOneVisible = false
             adapter.notifyDataSetChanged()
@@ -165,7 +188,7 @@ class MainActivity : AppCompatActivity() {
                 applicationContext.resources.getColor(R.color.blue),
                 PorterDuff.Mode.SRC_IN
             )
-            adapter.noteInfoList = ArrayList<Note>(noteList.sortedBy { note -> note.priority }
+            adapter.taskInfoList = ArrayList<Task>(taskList.sortedBy { note -> note.priority }
                 .sortedBy { note -> note.date })
             isDOneVisible = true
             adapter.notifyDataSetChanged()
@@ -175,5 +198,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val NOTIFICATION_ID = 101
         const val CHANNEL_ID = "com.example.todo"
+        lateinit var appContext: Context
     }
 }
