@@ -53,8 +53,6 @@ class MainActivity : AppCompatActivity() {
         appContext = this
 
         setUpUI()
-        setupViewModel()
-        setupObserver()
     }
 
     private fun setUpUI() {
